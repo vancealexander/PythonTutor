@@ -3,12 +3,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProgress, APIKeyConfig } from '@/types';
 import { storageService } from '@/lib/storage/localStorage';
-import { anthropicService } from '@/lib/llm/anthropic';
+import { llmService } from '@/lib/llm/llmService';
 import { pyodideService } from '@/lib/python/pyodide';
 
 interface AppContextType {
   apiConfig: APIKeyConfig;
   setAPIKey: (key: string) => void;
+  setDuckDuckGoConfig: (workerUrl: string, apiKey: string) => void;
   removeAPIKey: () => void;
   userProgress: UserProgress | null;
   updateProgress: (progress: Partial<UserProgress>) => void;
@@ -23,6 +24,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
   const [apiConfig, setApiConfig] = useState<APIKeyConfig>({
     anthropicKey: '',
+    llmProvider: 'anthropic',
     isConfigured: false,
   });
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
@@ -33,13 +35,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsMounted(true);
 
-    // Load API key
+    // Load API config
     const config = storageService.getAPIConfig();
     setApiConfig(config);
 
     if (config.isConfigured) {
-      anthropicService.initialize(config.anthropicKey);
-      setIsLLMReady(true);
+      try {
+        llmService.initialize(config);
+        setIsLLMReady(true);
+      } catch (error) {
+        console.error('Failed to initialize LLM service:', error);
+        setIsLLMReady(false);
+      }
     }
 
     // Load or initialize progress
@@ -79,21 +86,44 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setAPIKey = (key: string) => {
-    storageService.saveAPIKey(key);
-    anthropicService.initialize(key);
-    setApiConfig({
+    const config: APIKeyConfig = {
       anthropicKey: key,
+      llmProvider: 'anthropic',
       isConfigured: true,
-    });
+    };
+    storageService.saveAPIConfig(config);
+    llmService.initialize(config);
+    setApiConfig(config);
     setIsLLMReady(true);
   };
 
-  const removeAPIKey = () => {
-    storageService.removeAPIKey();
-    setApiConfig({
+  const setDuckDuckGoConfig = (workerUrl: string, apiKey: string) => {
+    const config: APIKeyConfig = {
       anthropicKey: '',
+      duckduckgoWorkerUrl: workerUrl,
+      duckduckgoApiKey: apiKey,
+      llmProvider: 'duckduckgo',
+      isConfigured: true,
+    };
+    storageService.saveAPIConfig(config);
+    try {
+      llmService.initialize(config);
+      setApiConfig(config);
+      setIsLLMReady(true);
+    } catch (error) {
+      console.error('Failed to initialize DuckDuckGo service:', error);
+      setIsLLMReady(false);
+    }
+  };
+
+  const removeAPIKey = () => {
+    const config: APIKeyConfig = {
+      anthropicKey: '',
+      llmProvider: 'anthropic',
       isConfigured: false,
-    });
+    };
+    storageService.saveAPIConfig(config);
+    setApiConfig(config);
     setIsLLMReady(false);
   };
 
@@ -115,6 +145,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         apiConfig,
         setAPIKey,
+        setDuckDuckGoConfig,
         removeAPIKey,
         userProgress,
         updateProgress,

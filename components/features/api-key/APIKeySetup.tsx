@@ -4,35 +4,17 @@ import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 
 export default function APIKeySetup() {
-  const { apiConfig, setAPIKey, removeAPIKey, setDuckDuckGoConfig } = useApp();
-  const [provider, setProvider] = useState<'anthropic' | 'duckduckgo'>('anthropic');
-  const [inputKey, setInputKey] = useState('');
-  const [workerUrl, setWorkerUrl] = useState('');
-  const [ddgApiKey, setDdgApiKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
+  const { apiConfig, setAPIKey, removeAPIKey } = useApp();
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
 
-  const handleSave = () => {
-    if (provider === 'anthropic') {
-      if (inputKey.trim().startsWith('sk-ant-')) {
-        setAPIKey(inputKey.trim());
-        setInputKey('');
-      } else {
-        alert('Please enter a valid Anthropic API key (starts with sk-ant-)');
-      }
-    } else if (provider === 'duckduckgo') {
-      if (workerUrl.trim() && ddgApiKey.trim()) {
-        setDuckDuckGoConfig(workerUrl.trim(), ddgApiKey.trim());
-        setWorkerUrl('');
-        setDdgApiKey('');
-      } else {
-        alert('Please enter both Worker URL and API Key');
-      }
-    }
-  };
-
-  const handleRemove = () => {
-    if (confirm('Are you sure you want to remove your API key? This will be stored only in your browser.')) {
-      removeAPIKey();
+  const handleSaveKey = () => {
+    if (apiKeyInput.trim().startsWith('sk-ant-')) {
+      setAPIKey(apiKeyInput.trim());
+      setApiKeyInput('');
+      setShowKeyInput(false);
+    } else {
+      alert('Please enter a valid Anthropic API key (starts with sk-ant-)');
     }
   };
 
@@ -45,166 +27,87 @@ export default function APIKeySetup() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <span className="text-green-800 font-medium">
-              {apiConfig.llmProvider === 'anthropic' ? 'Anthropic API' : 'DuckDuckGo AI'} Configured
+              API Key Configured - Claude Haiku Active
             </span>
           </div>
-          <button
-            onClick={handleRemove}
-            className="text-sm text-red-600 hover:text-red-800 underline"
-          >
-            Remove
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={removeAPIKey}
+              className="text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Remove Key
+            </button>
+          </div>
         </div>
-        <p className="text-sm text-green-700 mt-2">
-          Your {apiConfig.llmProvider === 'anthropic' ? 'API key' : 'configuration'} is securely stored in your browser. Ready to learn!
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        Configure Your AI Provider
-      </h3>
-      <p className="text-sm text-gray-600 mb-4">
-        Choose your AI provider. Your credentials are stored locally in your browser only.
-      </p>
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
+      <div className="max-w-2xl mx-auto text-center">
+        <div className="text-6xl mb-4">🐍</div>
+        <h2 className="text-3xl font-bold text-gray-900 mb-3">
+          Get Started with Python Tutor
+        </h2>
+        <p className="text-lg text-gray-700 mb-6">
+          Enter your Anthropic API key to unlock AI-powered Python tutoring
+        </p>
 
-      <div className="space-y-4">
-        {/* Provider Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Choose Provider
-          </label>
-          <div className="flex gap-4">
+        {!showKeyInput ? (
+          <div className="space-y-4">
             <button
-              onClick={() => setProvider('anthropic')}
-              className={`flex-1 px-4 py-3 border-2 rounded-lg ${
-                provider === 'anthropic'
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-300 bg-white hover:border-gray-400'
-              }`}
+              onClick={() => setShowKeyInput(true)}
+              className="px-8 py-4 bg-blue-600 text-white text-xl font-bold rounded-lg hover:bg-blue-700 shadow-xl transform hover:scale-105 transition"
             >
-              <div className="font-medium">Anthropic API</div>
-              <div className="text-xs text-gray-600">Claude Haiku (cheap)</div>
+              Add API Key
             </button>
-            <button
-              onClick={() => setProvider('duckduckgo')}
-              className={`flex-1 px-4 py-3 border-2 rounded-lg ${
-                provider === 'duckduckgo'
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-300 bg-white hover:border-gray-400'
-              }`}
-            >
-              <div className="font-medium">DuckDuckGo AI</div>
-              <div className="text-xs text-gray-600">Free (via Worker)</div>
-            </button>
+
+            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Don't have an API key?</strong>
+              </p>
+              <ol className="text-sm text-gray-600 text-left max-w-md mx-auto space-y-1">
+                <li>1. Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">console.anthropic.com</a></li>
+                <li>2. Create an account and add credits</li>
+                <li>3. Generate an API key</li>
+                <li>4. Paste it here</li>
+              </ol>
+              <p className="text-xs text-gray-500 mt-3">
+                💡 Uses Claude Haiku - very cheap (~$0.25 per 1M tokens)
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* Anthropic Configuration */}
-        {provider === 'anthropic' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Anthropic API Key
-            </label>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <input
-                  type={showKey ? 'text' : 'password'}
-                  value={inputKey}
-                  onChange={(e) => setInputKey(e.target.value)}
-                  placeholder="sk-ant-..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                />
-                <button
-                  onClick={() => setShowKey(!showKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showKey ? '🙈' : '👁️'}
-                </button>
-              </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex gap-2 max-w-xl mx-auto">
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="sk-ant-..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveKey()}
+              />
               <button
-                onClick={handleSave}
-                disabled={!inputKey.trim()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                onClick={handleSaveKey}
+                disabled={!apiKeyInput.trim()}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 font-bold"
               >
-                Save
+                Save Key
               </button>
             </div>
-            <div className="bg-white border border-gray-200 rounded p-4 text-sm mt-3">
-              <p className="font-medium text-gray-900 mb-2">How to get your API key:</p>
-              <ol className="list-decimal list-inside space-y-1 text-gray-600">
-                <li>Go to <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">console.anthropic.com</a></li>
-                <li>Create an account and add credits</li>
-                <li>Navigate to API Keys section</li>
-                <li>Create a new key and paste it above</li>
-              </ol>
-            </div>
+            <button
+              onClick={() => setShowKeyInput(false)}
+              className="text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              Cancel
+            </button>
           </div>
         )}
 
-        {/* DuckDuckGo Configuration */}
-        {provider === 'duckduckgo' && (
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cloudflare Worker URL
-              </label>
-              <input
-                type="text"
-                value={workerUrl}
-                onChange={(e) => setWorkerUrl(e.target.value)}
-                placeholder="https://your-worker.workers.dev"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Worker API Key
-              </label>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <input
-                    type={showKey ? 'text' : 'password'}
-                    value={ddgApiKey}
-                    onChange={(e) => setDdgApiKey(e.target.value)}
-                    placeholder="Your worker API key"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                  />
-                  <button
-                    onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showKey ? '🙈' : '👁️'}
-                  </button>
-                </div>
-                <button
-                  onClick={handleSave}
-                  disabled={!workerUrl.trim() || !ddgApiKey.trim()}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded p-4 text-sm">
-              <p className="font-medium text-gray-900 mb-2">Setup Instructions:</p>
-              <ol className="list-decimal list-inside space-y-1 text-gray-600">
-                <li>Clone <a href="https://github.com/HuggingBear/DuckDuckGo-AI" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">DuckDuckGo-AI repo</a></li>
-                <li>Deploy to Cloudflare Workers</li>
-                <li>Set your own API key for protection</li>
-                <li>Enter Worker URL and API key above</li>
-              </ol>
-            </div>
-          </div>
-        )}
-
-        <p className="text-gray-500 text-xs mt-3">
-          💡 All credentials stay in your browser. We never see them or store them on any server.
+        <p className="mt-6 text-xs text-gray-500">
+          🔒 Your API key is stored locally in your browser only
         </p>
       </div>
     </div>

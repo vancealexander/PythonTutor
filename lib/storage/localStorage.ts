@@ -38,9 +38,18 @@ export const storageService = {
       };
     }
 
-    const configData = localStorage.getItem(STORAGE_KEYS.API_CONFIG);
-    if (configData) {
-      return JSON.parse(configData);
+    try {
+      const configData = localStorage.getItem(STORAGE_KEYS.API_CONFIG);
+      if (configData) {
+        const parsed = JSON.parse(configData);
+        // Ensure llmProvider is set
+        if (!parsed.llmProvider) {
+          parsed.llmProvider = 'anthropic';
+        }
+        return parsed;
+      }
+    } catch (error) {
+      console.error('Error parsing API config:', error);
     }
 
     // Fallback to old API key format

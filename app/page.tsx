@@ -6,6 +6,8 @@ import APIKeySetup from '@/components/features/api-key/APIKeySetup';
 import CodeEditor from '@/components/features/code-editor/CodeEditor';
 import AITutor from '@/components/features/lesson/AITutor';
 import PyodideStatus from '@/components/ui/PyodideStatus';
+import AdBanner from '@/components/ads/AdBanner';
+import PricingTiers from '@/components/features/pricing/PricingTiers';
 
 export default function Home() {
   const { apiConfig, isPyodideReady, userProgress, isMounted } = useApp();
@@ -62,31 +64,50 @@ export default function Home() {
 
         {/* Main Content */}
         {apiConfig.isConfigured ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Code Editor */}
-            <div className="h-[600px]">
-              <CodeEditor
-                key={codeEditorKey}
-                height="600px"
-                onCodeChange={setEditorCode}
-              />
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left: Code Editor */}
+              <div className="lg:col-span-2">
+                <div className="h-[600px]">
+                  <CodeEditor
+                    key={codeEditorKey}
+                    height="600px"
+                    onCodeChange={setEditorCode}
+                  />
+                </div>
+
+                {/* Ad below editor for free users */}
+                <div className="mt-6">
+                  <AdBanner position="bottom" />
+                </div>
+              </div>
+
+              {/* Right: AI Tutor + Sidebar Ad */}
+              <div className="space-y-6">
+                <div className="h-[600px]">
+                  <AITutor
+                    systemPrompt="You are an expert Python tutor helping students learn programming. Provide clear, encouraging explanations with examples. Break down complex concepts into simple steps. When providing code examples, always wrap them in ```python code blocks."
+                    context={editorCode ? `Current student code:\n${editorCode}` : undefined}
+                    onCodeSuggestion={(code) => {
+                      // Update localStorage and force editor remount to reload code
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('pythonTutor_savedCode', code);
+                        setCodeEditorKey(prev => prev + 1);
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Sidebar ad for free users */}
+                <AdBanner position="sidebar" />
+              </div>
             </div>
 
-            {/* Right: AI Tutor */}
-            <div className="h-[600px]">
-              <AITutor
-                systemPrompt="You are an expert Python tutor helping students learn programming. Provide clear, encouraging explanations with examples. Break down complex concepts into simple steps. When providing code examples, always wrap them in ```python code blocks."
-                context={editorCode ? `Current student code:\n${editorCode}` : undefined}
-                onCodeSuggestion={(code) => {
-                  // Update localStorage and force editor remount to reload code
-                  if (typeof window !== 'undefined') {
-                    localStorage.setItem('pythonTutor_savedCode', code);
-                    setCodeEditorKey(prev => prev + 1);
-                  }
-                }}
-              />
+            {/* Pricing Section */}
+            <div className="mt-16">
+              <PricingTiers />
             </div>
-          </div>
+          </>
         ) : (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🚀</div>

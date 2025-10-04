@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { anthropicService } from '@/lib/llm/anthropic';
+import { llmService } from '@/lib/llm/llmService';
 import { LLMMessage } from '@/types';
 import { useApp } from '@/contexts/AppContext';
 
@@ -60,7 +60,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
         content: systemContent,
       };
 
-      const response = await anthropicService.chat([systemMessage, ...newMessages]);
+      const response = await llmService.chat([systemMessage, ...newMessages]);
 
       const assistantMessage: LLMMessage = {
         role: 'assistant',
