@@ -10,6 +10,7 @@ interface AppContextType {
   apiConfig: APIKeyConfig;
   setAPIKey: (key: string) => void;
   setDuckDuckGoConfig: (workerUrl: string, apiKey: string) => void;
+  setFreeTrial: () => void;
   removeAPIKey: () => void;
   userProgress: UserProgress | null;
   updateProgress: (progress: Partial<UserProgress>) => void;
@@ -36,7 +37,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsMounted(true);
 
     // Load API config
-    const config = storageService.getAPIConfig();
+    let config = storageService.getAPIConfig();
+
+    // Auto-start free trial for new users (no config saved)
+    if (!config.isConfigured) {
+      console.log('🎁 New user detected - auto-starting free trial');
+      config = {
+        anthropicKey: '',
+        llmProvider: 'free-trial',
+        isConfigured: true,
+      };
+      storageService.saveAPIConfig(config);
+    }
+
     setApiConfig(config);
 
     if (config.isConfigured) {
@@ -116,6 +129,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setFreeTrial = () => {
+    const config: APIKeyConfig = {
+      anthropicKey: '',
+      llmProvider: 'free-trial',
+      isConfigured: true,
+    };
+    storageService.saveAPIConfig(config);
+    llmService.initialize(config);
+    setApiConfig(config);
+    setIsLLMReady(true);
+  };
+
   const removeAPIKey = () => {
     const config: APIKeyConfig = {
       anthropicKey: '',
@@ -146,6 +171,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         apiConfig,
         setAPIKey,
         setDuckDuckGoConfig,
+        setFreeTrial,
         removeAPIKey,
         userProgress,
         updateProgress,

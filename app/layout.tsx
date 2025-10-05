@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AppProvider } from "@/contexts/AppContext";
+import SessionProvider from "@/components/providers/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Python Tutor - AI-Powered Interactive Learning",
-  description: "Learn Python with AI-powered lessons, exercises, and instant feedback. Browser-based Python execution with personalized curriculum.",
+  title: "Python Ninja - Master Python with AI",
+  description: "Master Python with AI-powered training, exercises, and instant feedback. Browser-based Python execution with personalized curriculum.",
 };
 
 export default function RootLayout({
@@ -33,9 +34,11 @@ export default function RootLayout({
           src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
           strategy="beforeInteractive"
         />
-        <AppProvider>
-          {children}
-        </AppProvider>
+        <SessionProvider>
+          <AppProvider>
+            {children}
+          </AppProvider>
+        </SessionProvider>
       </body>
     </html>
   );

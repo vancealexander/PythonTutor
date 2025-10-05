@@ -2,23 +2,28 @@
 
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useSession } from 'next-auth/react';
 import APIKeySetup from '@/components/features/api-key/APIKeySetup';
 import CodeEditor from '@/components/features/code-editor/CodeEditor';
 import AITutor from '@/components/features/lesson/AITutor';
 import PyodideStatus from '@/components/ui/PyodideStatus';
+import FreeTrialBanner from '@/components/ui/FreeTrialBanner';
 
 export default function Home() {
   const { apiConfig, isPyodideReady, userProgress, isMounted } = useApp();
+  const { data: session } = useSession();
   const [editorCode, setEditorCode] = React.useState('');
   const [codeEditorKey, setCodeEditorKey] = React.useState(0);
+
+  const isPaidUser = session?.user?.planType && session.user.planType !== 'free';
 
   // Prevent hydration mismatch
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-bounce">🐍</div>
-          <p className="text-gray-600">Loading Python Tutor...</p>
+          <div className="text-6xl mb-4 animate-bounce">🥷</div>
+          <p className="text-gray-600">Loading Python Ninja...</p>
         </div>
       </div>
     );
@@ -31,10 +36,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-4xl">🐍</span>
+              <span className="text-4xl">🥷</span>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Python Tutor</h1>
-                <p className="text-sm text-gray-600">AI-Powered Interactive Learning</p>
+                <h1 className="text-2xl font-bold text-gray-900">Python Ninja</h1>
+                <p className="text-sm text-gray-600">Master Python with AI-Powered Training</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -49,19 +54,70 @@ export default function Home() {
                   Phase {userProgress.currentPhase} • {userProgress.completedLessons.length} lessons completed
                 </div>
               )}
+              {/* Show plan badge or upgrade button */}
+              {isPaidUser ? (
+                <div className="flex items-center gap-3">
+                  <span className={`px-4 py-2 rounded-lg font-semibold text-sm ${
+                    session.user.planType === 'pro'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                      : 'bg-blue-600 text-white'
+                  }`}>
+                    {session.user.planType === 'pro' ? '⭐ Pro Member' : '💎 Premium Member'}
+                  </span>
+                  <a
+                    href="/dashboard"
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold text-sm transition-all"
+                  >
+                    Dashboard
+                  </a>
+                </div>
+              ) : (
+                <a
+                  href="/auth/signin"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-semibold text-sm transition-all shadow-sm hover:shadow-md"
+                >
+                  Upgrade to Pro
+                </a>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* API Key Setup */}
-        <div className="mb-6">
-          <APIKeySetup />
-        </div>
+        {/* Free Trial Banner - Show for free trial users only if not paid */}
+        {!isPaidUser && apiConfig.llmProvider === 'free-trial' && (
+          <div className="mb-6">
+            <FreeTrialBanner />
+          </div>
+        )}
 
-        {/* Main Content */}
-        {apiConfig.isConfigured ? (
+        {/* Paid User Welcome Banner */}
+        {isPaidUser && (
+          <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  Welcome back, {session.user.name || 'Ninja'}! 🥷
+                </h3>
+                <p className="text-sm text-gray-600">
+                  You're on the <strong>{session.user.planType.toUpperCase()}</strong> plan with {
+                    session.user.planType === 'pro' ? 'unlimited AI requests' : '100 AI requests/month or unlimited with your own API key'
+                  }
+                </p>
+              </div>
+              <a
+                href="/dashboard"
+                className="px-4 py-2 bg-white text-purple-600 border border-purple-300 rounded-lg hover:bg-purple-50 font-semibold text-sm transition-all"
+              >
+                Manage Plan
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content - Always show (auto-started in free trial) */}
+        {apiConfig.isConfigured && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left: Code Editor */}
@@ -79,7 +135,7 @@ export default function Home() {
               <div>
                 <div className="h-[600px]">
                   <AITutor
-                    systemPrompt="You are an expert Python tutor helping students learn programming. Provide clear, encouraging explanations with examples. Break down complex concepts into simple steps. When providing code examples, always wrap them in ```python code blocks."
+                    systemPrompt="You are an expert Python sensei helping students master programming. Provide clear, encouraging explanations with examples. Break down complex concepts into simple steps. When providing code examples, always wrap them in ```python code blocks."
                     context={editorCode ? `Current student code:\n${editorCode}` : undefined}
                     onCodeSuggestion={(code) => {
                       // Update localStorage and force editor remount to reload code
@@ -93,16 +149,6 @@ export default function Home() {
               </div>
             </div>
           </>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🚀</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome to Python Tutor!
-            </h2>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Configure your API key above to start learning Python with AI-powered lessons and instant feedback.
-            </p>
-          </div>
         )}
 
         {/* Features Section */}

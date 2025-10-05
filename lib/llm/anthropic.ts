@@ -112,7 +112,7 @@ export class AnthropicService {
   }
 
   private buildLessonPrompt(phase: number, topic: string, userProgress: any): string {
-    return `You are an expert Python tutor. Generate a comprehensive lesson for Phase ${phase} on the topic: "${topic}".
+    return `You are an expert Python sensei. Generate a comprehensive lesson for Phase ${phase} on the topic: "${topic}".
 
 User Progress:
 - Strengths: ${userProgress.strengths.join(', ') || 'None yet'}

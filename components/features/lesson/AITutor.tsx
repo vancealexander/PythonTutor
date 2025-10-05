@@ -49,7 +49,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
 
     try {
       // Build system message with current context
-      let systemContent = systemPrompt || 'You are an expert Python tutor. Help students learn Python programming with clear explanations, examples, and encouragement.';
+      let systemContent = systemPrompt || 'You are an expert Python sensei. Help students master Python programming with clear explanations, examples, and encouragement.';
 
       if (context) {
         systemContent += `\n\n${context}`;
@@ -71,7 +71,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
     } catch (error: any) {
       const errorMessage: LLMMessage = {
         role: 'assistant',
-        content: `Sorry, I encountered an error: ${error.message}. Please check your API key configuration.`,
+        content: `Sorry, I encountered an error: ${error.message}`,
       };
       setMessages([...newMessages, errorMessage]);
     } finally {
@@ -102,8 +102,8 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
     return (
       <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200 p-8">
         <div className="text-center">
-          <p className="text-gray-600 mb-2">AI Tutor not available</p>
-          <p className="text-sm text-gray-500">Please configure your API key to enable the AI tutor</p>
+          <p className="text-gray-600 mb-2">AI Sensei not available</p>
+          <p className="text-sm text-gray-500">Please configure your API key to enable the AI Sensei</p>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
         <div className="flex items-center gap-2">
           <span className="text-2xl">🤖</span>
           <div>
-            <h3 className="font-semibold text-gray-900">AI Python Tutor</h3>
+            <h3 className="font-semibold text-gray-900">AI Sensei</h3>
             <p className="text-xs text-gray-600">
               Powered by Claude {context && <span className="text-green-600">• 👁️ Watching your code</span>}
             </p>
@@ -135,8 +135,8 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
-            <p className="text-lg mb-2">👋 Hi! I'm your AI Python tutor.</p>
-            <p className="text-sm mb-4">Ask me anything about Python, request exercises, or get help with your code!</p>
+            <p className="text-lg mb-2">👋 Hi! I'm your AI Sensei.</p>
+            <p className="text-sm mb-4">Ask me anything about Python, request training exercises, or get help mastering your code!</p>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {quickPrompts.map((prompt, index) => (
                 <button
@@ -165,7 +165,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
                   }`}
                 >
                   <div className="text-xs opacity-70 mb-1">
-                    {message.role === 'user' ? 'You' : 'AI Tutor'}
+                    {message.role === 'user' ? 'You' : 'AI Sensei'}
                   </div>
                   <div className="whitespace-pre-wrap text-sm">{message.content}</div>
                   {codeSnippet && onCodeSuggestion && (

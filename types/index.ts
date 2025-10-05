@@ -50,7 +50,7 @@ export interface APIKeyConfig {
   anthropicKey: string;
   duckduckgoWorkerUrl?: string;
   duckduckgoApiKey?: string;
-  llmProvider: 'anthropic' | 'duckduckgo';
+  llmProvider: 'anthropic' | 'duckduckgo' | 'free-trial';
   isConfigured: boolean;
 }
 
