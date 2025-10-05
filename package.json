@@ -13,6 +13,8 @@
     "@auth/supabase-adapter": "^1.10.0",
     "@monaco-editor/react": "^4.7.0",
     "@supabase/supabase-js": "^2.58.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "next": "15.5.4",
     "next-auth": "^4.24.11",
     "react": "19.1.0",
