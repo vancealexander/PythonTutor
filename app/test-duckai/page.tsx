@@ -32,21 +32,29 @@ export default function TestDuckAI() {
     }
 
     try {
-      setStatus('Installing duckai package...');
+      setStatus('Loading micropip...');
       setResult('');
       setError('');
 
+      // First load micropip package from Pyodide
+      await pyodideService.loadPackage('micropip');
+
+      setStatus('Installing duckai package...');
       const testResult = await pyodideService.runCode(`
-# Test 1: Install duckai
+# Test 1: Import micropip (already loaded)
 import micropip
+print("✅ micropip loaded")
+
+# Test 2: Install duckai
+print("📦 Installing duckai...")
 await micropip.install('duckai')
 print("✅ duckai installed successfully")
 
-# Test 2: Import duckai
+# Test 3: Import duckai
 from duckai import ask
 print("✅ duckai imported successfully")
 
-# Test 3: Make a simple query
+# Test 4: Make a simple query
 print("\\n🔄 Testing DuckDuckAI query...")
 try:
     response = ask("Say hello in 5 words", stream=False, model="claude-3-haiku-20240307")
