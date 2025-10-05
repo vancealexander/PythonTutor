@@ -6,8 +6,6 @@ import APIKeySetup from '@/components/features/api-key/APIKeySetup';
 import CodeEditor from '@/components/features/code-editor/CodeEditor';
 import AITutor from '@/components/features/lesson/AITutor';
 import PyodideStatus from '@/components/ui/PyodideStatus';
-import AdBanner from '@/components/ads/AdBanner';
-import PricingTiers from '@/components/features/pricing/PricingTiers';
 
 export default function Home() {
   const { apiConfig, isPyodideReady, userProgress, isMounted } = useApp();
@@ -75,15 +73,10 @@ export default function Home() {
                     onCodeChange={setEditorCode}
                   />
                 </div>
-
-                {/* Ad below editor for free users */}
-                <div className="mt-6">
-                  <AdBanner position="bottom" />
-                </div>
               </div>
 
-              {/* Right: AI Tutor + Sidebar Ad */}
-              <div className="space-y-6">
+              {/* Right: AI Tutor */}
+              <div>
                 <div className="h-[600px]">
                   <AITutor
                     systemPrompt="You are an expert Python tutor helping students learn programming. Provide clear, encouraging explanations with examples. Break down complex concepts into simple steps. When providing code examples, always wrap them in ```python code blocks."
@@ -97,15 +90,7 @@ export default function Home() {
                     }}
                   />
                 </div>
-
-                {/* Sidebar ad for free users */}
-                <AdBanner position="sidebar" />
               </div>
-            </div>
-
-            {/* Pricing Section */}
-            <div className="mt-16">
-              <PricingTiers />
             </div>
           </>
         ) : (
