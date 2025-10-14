@@ -161,77 +161,12 @@ export default function CodeEditor({
           </span>
         </div>
         <div className="flex gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowExamples(!showExamples)}
-              className="px-3 py-1 text-sm bg-purple-600 hover:bg-purple-700 rounded"
-              disabled={isRunning}
-              title="Load example code"
-            >
-              📚 Examples
-            </button>
-            {showExamples && (
-              <div className="absolute top-full mt-1 left-0 bg-white border border-gray-300 rounded shadow-lg z-10 min-w-[200px]">
-                <button
-                  onClick={() => handleLoadExample('helloWorld')}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Hello World
-                </button>
-                <button
-                  onClick={() => handleLoadExample('variables')}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Variables & Types
-                </button>
-                <button
-                  onClick={() => handleLoadExample('loops')}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Loops
-                </button>
-                <button
-                  onClick={() => handleLoadExample('functions')}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Functions
-                </button>
-                <button
-                  onClick={() => handleLoadExample('lists')}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Lists
-                </button>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={handleLoadCode}
-            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded"
-            disabled={isRunning}
-            title="Load code from file"
-          >
-            📂 Load
-          </button>
-          <button
-            onClick={handleSaveCode}
-            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded"
-            disabled={isRunning || !code.trim()}
-            title="Save code to file"
-          >
-            💾 Save
-          </button>
-          <button
-            onClick={handleClear}
-            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded"
-            disabled={isRunning}
-          >
-            Clear
-          </button>
+          {/* Run Code button moved first and made more prominent */}
           <button
             onClick={handleRunCode}
             disabled={isRunning || !code.trim()}
-            className="px-4 py-1 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded font-medium flex items-center gap-2"
+            className="px-4 py-1.5 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded font-medium flex items-center gap-2 min-w-[90px] justify-center"
+            title="Run Code (Ctrl/Cmd+Enter)"
           >
             {isRunning ? (
               <>
@@ -239,10 +174,35 @@ export default function CodeEditor({
                 Running...
               </>
             ) : (
-              <>
-                ▶️ Run Code
-              </>
+              <>▶️ Run</>
             )}
+          </button>
+
+          {/* Secondary actions - hide load/save on very small screens */}
+          <button
+            onClick={handleLoadCode}
+            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded hidden sm:inline-block"
+            disabled={isRunning}
+            title="Load code from file"
+          >
+            📂 Load
+          </button>
+
+          <button
+            onClick={handleSaveCode}
+            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded hidden sm:inline-block"
+            disabled={isRunning || !code.trim()}
+            title="Save code to file"
+          >
+            💾 Save
+          </button>
+
+          <button
+            onClick={handleClear}
+            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded"
+            disabled={isRunning}
+          >
+            Clear
           </button>
         </div>
       </div>
