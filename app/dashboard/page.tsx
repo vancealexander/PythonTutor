@@ -1,15 +1,18 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { mockStripe } from '@/lib/stripe/mock-stripe';
-import { mockDb } from '@/lib/db/mock-db';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { STRIPE_PRICES } from '@/lib/stripe/config';
 
-export default function Dashboard() {
+function DashboardContent() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -17,79 +20,79 @@ export default function Dashboard() {
     }
   }, [status, router]);
 
+  // Handle return from Stripe checkout
+  useEffect(() => {
+    if (searchParams?.get('success') === 'true') {
+      setSuccessMessage('Payment successful! Your plan is being activated.');
+      // Refresh the session to pick up the updated subscription
+      update();
+      // Clean up URL params
+      router.replace('/dashboard');
+    }
+  }, [searchParams, update, router]);
+
   const handleUpgrade = async (planType: 'basic' | 'pro') => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.email) return;
 
     setIsUpgrading(true);
+    setError('');
 
     try {
-      // Simulate checkout
-      const priceId = planType === 'basic' ? 'price_mock_basic' : 'price_mock_pro';
-      const checkoutSession = await mockStripe.createCheckoutSession({
-        userId: session.user.id,
-        email: session.user.email,
-        priceId,
-        successUrl: '/dashboard?payment=success',
-        cancelUrl: '/dashboard?payment=canceled',
+      const priceId = planType === 'basic'
+        ? STRIPE_PRICES.BASIC_MONTHLY
+        : STRIPE_PRICES.PRO_MONTHLY;
+
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, planType }),
       });
 
-      console.log('Checkout session created:', checkoutSession);
+      const data = await response.json();
 
-      // Simulate immediate payment success (in real app, user would go to Stripe)
-      const paymentSuccess = await mockStripe.completeCheckout(checkoutSession.id);
-
-      if (paymentSuccess) {
-        // Simulate webhook event
-        await mockStripe.processWebhookEvent({
-          type: 'checkout.session.completed',
-          data: {
-            sessionId: checkoutSession.id,
-            userId: session.user.id,
-            customerId: checkoutSession.customerId,
-            priceId,
-          },
-        });
-
-        // Update session
-        await update();
-
-        alert(`✅ Successfully upgraded to ${planType.toUpperCase()} plan!`);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
       }
-    } catch (error) {
-      console.error('Upgrade failed:', error);
-      alert('Upgrade failed. Please try again.');
-    } finally {
+
+      if (!data.url) {
+        throw new Error('No checkout URL returned');
+      }
+
+      window.location.href = data.url;
+    } catch (err: any) {
+      console.error('Upgrade failed:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
       setIsUpgrading(false);
     }
   };
 
   const handleCancelSubscription = async () => {
-    if (!session?.user?.stripeCustomerId) return;
-
-    const confirmed = confirm('Are you sure you want to cancel your subscription?');
+    const confirmed = confirm('Are you sure you want to cancel your subscription? It will remain active until the end of your billing period.');
     if (!confirmed) return;
 
+    setIsCanceling(true);
+    setError('');
+
     try {
-      // Get subscription from mock DB
-      const subscription = mockDb.getSubscription(session.user.id);
-      if (subscription?.stripeSubscriptionId) {
-        await mockStripe.cancelSubscription(subscription.stripeSubscriptionId);
+      const response = await fetch('/api/stripe/manage-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel' }),
+      });
 
-        // Update in mock DB
-        mockDb.updateSubscription(session.user.id, {
-          userId: session.user.id,
-          status: 'canceled',
-          planType: 'free',
-        });
+      const data = await response.json();
 
-        // Update session
-        await update();
-
-        alert('✅ Subscription canceled successfully');
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription');
       }
-    } catch (error) {
-      console.error('Cancel failed:', error);
-      alert('Failed to cancel subscription');
+
+      await update();
+      setSuccessMessage('Subscription will be canceled at the end of your billing period.');
+    } catch (err: any) {
+      console.error('Cancel failed:', err);
+      setError(err.message || 'Failed to cancel subscription. Please try again.');
+    } finally {
+      setIsCanceling(false);
     }
   };
 
@@ -137,6 +140,20 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">{successMessage}</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-800">{error}</p>
+          </div>
+        )}
+
         {/* Account Info Card */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Information</h2>
@@ -174,13 +191,6 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-
-          {session.user.stripeCustomerId && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-1">Stripe Customer ID</p>
-              <p className="text-sm font-mono text-gray-700">{session.user.stripeCustomerId}</p>
-            </div>
-          )}
         </div>
 
         {/* Subscription Management */}
@@ -250,14 +260,11 @@ export default function Dashboard() {
 
             <button
               onClick={handleCancelSubscription}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold"
+              disabled={isCanceling}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-semibold"
             >
-              Cancel Subscription
+              {isCanceling ? 'Canceling...' : 'Cancel Subscription'}
             </button>
-
-            <p className="text-sm text-gray-500 mt-4">
-              Note: This is a mock cancellation. In production, this would cancel via Stripe.
-            </p>
           </div>
         )}
 
@@ -284,14 +291,19 @@ export default function Dashboard() {
             <p className="text-sm text-gray-600">Coming soon</p>
           </div>
         </div>
-
-        {/* Testing Info */}
-        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>🧪 Testing Mode:</strong> This is using mock authentication and mock Stripe. No real payment processing.
-          </p>
-        </div>
       </main>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-6xl animate-bounce">🥷</div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
