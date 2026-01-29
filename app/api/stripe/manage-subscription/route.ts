@@ -1,10 +1,9 @@
 // API endpoint to manage user subscriptions (cancel, retrieve)
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth/auth';
 import { stripe } from '@/lib/stripe/stripe';
 import { createClient } from '@supabase/supabase-js';
 import { mockDb } from '@/lib/db/mock-db';
-import { authOptions } from '@/lib/auth/auth-options';
 
 // Check if using mock mode
 const USE_MOCK_DB = !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -17,7 +16,7 @@ const supabase = !USE_MOCK_DB ? createClient(
 // GET - Retrieve current subscription
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -91,7 +90,7 @@ export async function GET(req: NextRequest) {
 // POST - Cancel subscription
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -193,7 +192,7 @@ export async function POST(req: NextRequest) {
 // DELETE - Immediately cancel subscription
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
