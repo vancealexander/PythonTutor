@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pythonninja.app"),
   title: "Python Ninja - Master Python with AI",
   description: "Master Python with AI-powered training, exercises, and instant feedback. Browser-based Python execution with personalized curriculum.",
 };
