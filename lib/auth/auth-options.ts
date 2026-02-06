@@ -1,6 +1,8 @@
 import { NextAuthOptions } from 'next-auth';
 import { SupabaseAdapter } from '@auth/supabase-adapter';
 import { createClient } from '@supabase/supabase-js';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
 import { authOptionsLocal } from './auth-options-local';
 
 // Note: OAuth providers (Google, GitHub, Email) are excluded from production config
@@ -36,8 +38,54 @@ const authOptionsProduction: NextAuthOptions = {
   }) : undefined,
 
   providers: [
-    // OAuth providers removed for local testing to avoid build dependencies
-    // To add OAuth: npm install nodemailer && add providers here
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password || !supabase) {
+          return null;
+        }
+
+        // Get user from Supabase
+        const { data: user } = await supabase
+          .from('users')
+          .select('id, email, name')
+          .eq('email', credentials.email)
+          .single();
+
+        if (!user) {
+          return null;
+        }
+
+        // Get account with hashed password
+        const { data: account } = await supabase
+          .from('accounts')
+          .select('access_token')
+          .eq('user_id', user.id)
+          .eq('provider', 'credentials')
+          .single();
+
+        if (!account?.access_token) {
+          return null;
+        }
+
+        // Verify password
+        const isValid = await bcrypt.compare(credentials.password, account.access_token);
+
+        if (!isValid) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        };
+      },
+    }),
   ],
 
   session: {
