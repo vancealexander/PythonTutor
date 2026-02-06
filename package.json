@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-stripe": "node scripts/check-stripe.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
@@ -14,6 +15,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "@types/bcryptjs": "^2.4.6",
+    "@vercel/analytics": "^1.6.1",
     "bcryptjs": "^3.0.2",
     "next": "15.5.9",
     "next-auth": "^4.24.11",
@@ -27,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",

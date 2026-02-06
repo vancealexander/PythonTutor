@@ -15,6 +15,10 @@ interface MockSubscription {
   planType: 'free' | 'basic' | 'pro';
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  stripePriceId?: string;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd?: boolean;
 }
 
 interface MockProgress {
@@ -168,6 +172,31 @@ class MockDatabase {
     this.subscriptions.set(userId, updated);
     console.log(`✅ Updated subscription for ${userId}:`, updated);
     return updated;
+  }
+
+  createOrUpdateSubscription(subscription: MockSubscription): MockSubscription {
+    this.subscriptions.set(subscription.userId, subscription);
+    console.log(`✅ Created/updated subscription for ${subscription.userId}:`, subscription);
+    return subscription;
+  }
+
+  getSubscriptionByStripeId(stripeSubscriptionId: string): MockSubscription | null {
+    for (const sub of this.subscriptions.values()) {
+      if (sub.stripeSubscriptionId === stripeSubscriptionId) {
+        return sub;
+      }
+    }
+    return null;
+  }
+
+  deleteSubscription(userId: string): void {
+    // Downgrade to free instead of deleting
+    this.subscriptions.set(userId, {
+      userId,
+      status: 'canceled',
+      planType: 'free',
+    });
+    console.log(`✅ Downgraded subscription to free for ${userId}`);
   }
 
   // Session operations

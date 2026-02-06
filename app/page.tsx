@@ -73,7 +73,7 @@ export default function Home() {
                 </div>
               ) : (
                 <a
-                  href="/auth/signin"
+                  href="/pricing"
                   className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-semibold text-sm transition-all shadow-sm hover:shadow-md"
                 >
                   Upgrade to Pro

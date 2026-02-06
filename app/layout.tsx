@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AppProvider } from "@/contexts/AppContext";
 import SessionProvider from "@/components/providers/SessionProvider";
@@ -51,6 +52,7 @@ export default function RootLayout({
             {children}
           </AppProvider>
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   );
