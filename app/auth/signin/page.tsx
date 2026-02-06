@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useState, Suspense } from 'react';
+import Link from 'next/link';
 
 function SignInForm() {
   const searchParams = useSearchParams();
@@ -58,7 +59,7 @@ function SignInForm() {
           setError('Invalid email or password');
         }
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -77,7 +78,7 @@ function SignInForm() {
         callbackUrl,
         redirect: true,
       });
-    } catch (err) {
+    } catch {
       setError('Login failed');
       setIsLoading(false);
     }
@@ -213,12 +214,12 @@ function SignInForm() {
         </div>
 
         {/* Back to Home */}
-        <a
+        <Link
           href="/"
           className="block text-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
         >
           ← Back to Home
-        </a>
+        </Link>
       </div>
     </div>
   );

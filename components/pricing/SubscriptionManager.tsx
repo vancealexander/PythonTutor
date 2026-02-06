@@ -6,7 +6,12 @@ import { PLAN_DETAILS } from '@/lib/stripe/stripe';
 
 export default function SubscriptionManager() {
   const { data: session } = useSession();
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<{
+    status?: string;
+    plan_type?: string;
+    stripe_customer_id?: string;
+    stripe_subscription_id?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
 

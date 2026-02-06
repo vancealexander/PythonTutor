@@ -25,14 +25,12 @@ export default function CodeEditor({
   initialCode = '# Write your Python code here\nprint("Hello, World!")',
   onCodeChange,
   onExecute,
-  height = '400px',
   readOnly = false,
 }: CodeEditorProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState<CodeExecutionResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [showExamples, setShowExamples] = useState(false);
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<{ getValue: () => string } | null>(null);
 
   // Load saved code from localStorage on mount
   useEffect(() => {
@@ -109,10 +107,11 @@ export default function CodeEditor({
       const result = await pyodideService.runCode(code);
       setOutput(result);
       onExecute?.(result);
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
       setOutput({
         output: '',
-        error: error.message || 'An unexpected error occurred',
+        error: message,
         executionTime: 0,
       });
     } finally {
@@ -125,9 +124,8 @@ export default function CodeEditor({
     setOutput(null);
   };
 
-  const handleLoadExample = (exampleKey: keyof typeof CODE_EXAMPLES) => {
+  const _handleLoadExample = (exampleKey: keyof typeof CODE_EXAMPLES) => {
     setCode(CODE_EXAMPLES[exampleKey]);
-    setShowExamples(false);
     setOutput(null);
   };
 
@@ -242,7 +240,7 @@ export default function CodeEditor({
         </div>
         <div className="font-mono text-sm whitespace-pre-wrap">
           {!output ? (
-            <div className="text-gray-500 italic">Click "Run Code" to see output...</div>
+            <div className="text-gray-500 italic">Click &quot;Run Code&quot; to see output...</div>
           ) : output.error ? (
             // Parse and highlight Python error messages
             <div className="text-red-400">

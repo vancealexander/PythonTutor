@@ -101,8 +101,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Separate system message from conversation messages
-    const systemMessage = messages.find((m: any) => m.role === 'system');
-    const conversationMessages = messages.filter((m: any) => m.role !== 'system');
+    const systemMessage = messages.find((m: { role: string; content: string }) => m.role === 'system');
+    const conversationMessages = messages.filter((m: { role: string; content: string }) => m.role !== 'system');
 
     // Call Anthropic API
     const response = await fetch('https://api.anthropic.com/v1/messages', {

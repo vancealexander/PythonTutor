@@ -1,6 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { LLMMessage } from '@/types';
 
+interface UserProgressInput {
+  strengths: string[];
+  weaknesses: string[];
+  completedLessons: string[];
+}
+
 export class AnthropicService {
   private client: Anthropic | null = null;
   private apiKey: string | null = null;
@@ -20,7 +26,7 @@ export class AnthropicService {
   async generateLesson(
     phase: number,
     topic: string,
-    userProgress: any
+    userProgress: UserProgressInput
   ): Promise<string> {
     if (!this.client) throw new Error('Anthropic client not initialized');
 
@@ -111,7 +117,7 @@ export class AnthropicService {
     return response.content[0].type === 'text' ? response.content[0].text : '';
   }
 
-  private buildLessonPrompt(phase: number, topic: string, userProgress: any): string {
+  private buildLessonPrompt(phase: number, topic: string, userProgress: UserProgressInput): string {
     return `You are an expert Python sensei. Generate a comprehensive lesson for Phase ${phase} on the topic: "${topic}".
 
 User Progress:

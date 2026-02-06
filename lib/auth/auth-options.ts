@@ -101,7 +101,7 @@ const authOptionsProduction: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       // Initial sign in
       if (user && supabase) {
         token.id = user.id;

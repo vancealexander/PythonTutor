@@ -77,9 +77,10 @@ export default function PricingSection() {
       // Redirect to Stripe Checkout
       console.log('🚀 Redirecting to Stripe:', data.url);
       window.location.href = data.url;
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Error creating checkout session:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(message);
       setLoading(false);
     }
   };

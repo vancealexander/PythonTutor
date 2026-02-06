@@ -68,10 +68,11 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
       };
 
       setMessages([...newMessages, assistantMessage]);
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       const errorMessage: LLMMessage = {
         role: 'assistant',
-        content: `Sorry, I encountered an error: ${error.message}`,
+        content: `Sorry, I encountered an error: ${message}`,
       };
       setMessages([...newMessages, errorMessage]);
     } finally {
@@ -135,7 +136,7 @@ export default function AITutor({ context, systemPrompt, onCodeSuggestion }: AIT
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
-            <p className="text-lg mb-2">👋 Hi! I'm your AI Sensei.</p>
+            <p className="text-lg mb-2">👋 Hi! I&apos;m your AI Sensei.</p>
             <p className="text-sm mb-4">Ask me anything about Python, request training exercises, or get help mastering your code!</p>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {quickPrompts.map((prompt, index) => (

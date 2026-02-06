@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
+import Link from 'next/link';
 import { STRIPE_PRICES } from '@/lib/stripe/config';
 
 function DashboardContent() {
@@ -59,9 +60,10 @@ function DashboardContent() {
       }
 
       window.location.href = data.url;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Upgrade failed:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(message);
       setIsUpgrading(false);
     }
   };
@@ -88,9 +90,10 @@ function DashboardContent() {
 
       await update();
       setSuccessMessage('Subscription will be canceled at the end of your billing period.');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Cancel failed:', err);
-      setError(err.message || 'Failed to cancel subscription. Please try again.');
+      const message = err instanceof Error ? err.message : 'Failed to cancel subscription. Please try again.';
+      setError(message);
     } finally {
       setIsCanceling(false);
     }
@@ -270,14 +273,14 @@ function DashboardContent() {
 
         {/* Quick Actions */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a
+          <Link
             href="/"
             className="bg-white rounded-lg p-6 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition text-center"
           >
             <div className="text-3xl mb-3">🥷</div>
             <h3 className="font-semibold text-gray-900 mb-2">Python Ninja</h3>
             <p className="text-sm text-gray-600">Start mastering Python</p>
-          </a>
+          </Link>
 
           <div className="bg-white rounded-lg p-6 border border-gray-200 text-center">
             <div className="text-3xl mb-3">📊</div>

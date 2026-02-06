@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "check-stripe": "node scripts/check-stripe.js"
+    "check-stripe": "node scripts/check-stripe.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",

@@ -14,7 +14,7 @@ const supabase = !USE_MOCK_DB ? createClient(
 ) : null;
 
 // GET - Retrieve current subscription
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.email) {
@@ -78,10 +78,11 @@ export async function GET(req: NextRequest) {
 
       return NextResponse.json(subscription);
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error retrieving subscription:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -180,17 +181,18 @@ export async function POST(req: NextRequest) {
         success: true,
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error canceling subscription:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: message },
       { status: 500 }
     );
   }
 }
 
 // DELETE - Immediately cancel subscription
-export async function DELETE(req: NextRequest) {
+export async function DELETE(_req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.email) {
@@ -261,10 +263,11 @@ export async function DELETE(req: NextRequest) {
         success: true,
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error immediately canceling subscription:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: message },
       { status: 500 }
     );
   }

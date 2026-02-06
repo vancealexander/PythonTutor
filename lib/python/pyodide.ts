@@ -1,13 +1,20 @@
 import { CodeExecutionResult } from '@/types';
 
+// Pyodide types
+interface PyodideInterface {
+  runPython: (code: string) => unknown;
+  runPythonAsync: (code: string) => Promise<unknown>;
+  globals: { get: (name: string) => unknown };
+}
+
 // Declare global pyodide
 declare global {
   interface Window {
-    loadPyodide: any;
+    loadPyodide: () => Promise<PyodideInterface>;
   }
 }
 
-let pyodideInstance: any = null;
+let pyodideInstance: PyodideInterface | null = null;
 let isLoading = false;
 
 export const pyodideService = {
@@ -91,8 +98,8 @@ _stdout.getvalue(), _stderr.getvalue()
         output = result ? String(result) : '';
       }
 
-    } catch (err: any) {
-      error = err.message || String(err);
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
     }
 
     const executionTime = performance.now() - startTime;

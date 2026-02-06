@@ -81,7 +81,7 @@ export default function APIKeySetup() {
 
             <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
               <p className="text-sm text-gray-700 mb-2">
-                <strong>Don't have an API key?</strong>
+                <strong>Don&apos;t have an API key?</strong>
               </p>
               <ol className="text-sm text-gray-600 text-left max-w-md mx-auto space-y-1">
                 <li>1. Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">console.anthropic.com</a></li>

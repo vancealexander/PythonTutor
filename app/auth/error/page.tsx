@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Link from 'next/link';
 
 function ErrorContent() {
   const searchParams = useSearchParams();
@@ -62,19 +63,19 @@ function ErrorContent() {
 
         {/* Actions */}
         <div className="space-y-3">
-          <a
+          <Link
             href="/auth/signin"
             className="block w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-semibold text-center transition"
           >
             Try Again
-          </a>
-          
-          <a
+          </Link>
+
+          <Link
             href="/"
             className="block w-full py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold text-center transition"
           >
             Go Home
-          </a>
+          </Link>
         </div>
 
         {/* Help Text */}

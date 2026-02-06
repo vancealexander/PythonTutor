@@ -3,7 +3,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useSession } from 'next-auth/react';
-import APIKeySetup from '@/components/features/api-key/APIKeySetup';
 import CodeEditor from '@/components/features/code-editor/CodeEditor';
 import AITutor from '@/components/features/lesson/AITutor';
 import PyodideStatus from '@/components/ui/PyodideStatus';
@@ -101,7 +100,7 @@ export default function Home() {
                   Welcome back, {session.user.name || 'Ninja'}! 🥷
                 </h3>
                 <p className="text-sm text-gray-600">
-                  You're on the <strong>{session.user.planType.toUpperCase()}</strong> plan with {
+                  You&apos;re on the <strong>{session.user.planType.toUpperCase()}</strong> plan with {
                     session.user.planType === 'pro' ? 'unlimited AI requests' : '100 AI requests/month or unlimited with your own API key'
                   }
                 </p>

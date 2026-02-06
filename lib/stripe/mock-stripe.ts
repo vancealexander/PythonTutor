@@ -126,7 +126,7 @@ class MockStripeService {
   // Mock webhook event processor
   async processWebhookEvent(event: {
     type: string;
-    data: any;
+    data: { sessionId?: string; userId?: string; customerId?: string; priceId?: string; status?: string; planType?: string };
   }): Promise<void> {
     console.log(`🔔 Processing mock webhook: ${event.type}`);
 
@@ -148,8 +148,8 @@ class MockStripeService {
     }
   }
 
-  private async handleCheckoutCompleted(data: any): Promise<void> {
-    const { sessionId, userId, customerId, priceId } = data;
+  private async handleCheckoutCompleted(data: { sessionId?: string; userId?: string; customerId?: string; priceId?: string }): Promise<void> {
+    const { userId, customerId, priceId } = data;
 
     console.log(`   Checkout completed for user: ${userId}`);
 
@@ -169,7 +169,7 @@ class MockStripeService {
     console.log(`   ✅ User upgraded to ${planType} plan`);
   }
 
-  private async handleSubscriptionUpdated(data: any): Promise<void> {
+  private async handleSubscriptionUpdated(data: { userId?: string; status?: string; planType?: string }): Promise<void> {
     const { userId, status, planType } = data;
 
     mockDb.updateSubscription(userId, {
@@ -181,7 +181,7 @@ class MockStripeService {
     console.log(`   ✅ Subscription updated: ${status}`);
   }
 
-  private async handleSubscriptionDeleted(data: any): Promise<void> {
+  private async handleSubscriptionDeleted(data: { userId?: string }): Promise<void> {
     const { userId } = data;
 
     mockDb.updateSubscription(userId, {

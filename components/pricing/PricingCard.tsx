@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { PLAN_DETAILS, PlanType } from '@/lib/stripe/config';
 
 interface PricingCardProps {

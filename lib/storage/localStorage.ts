@@ -88,20 +88,20 @@ export const storageService = {
   },
 
   // Conversation History
-  saveConversation: (lessonId: string, messages: any[]): void => {
+  saveConversation: (lessonId: string, messages: { role: string; content: string }[]): void => {
     if (typeof window === 'undefined') return;
     const conversations = storageService.getAllConversations();
     conversations[lessonId] = messages;
     localStorage.setItem(STORAGE_KEYS.CONVERSATION_HISTORY, JSON.stringify(conversations));
   },
 
-  getConversation: (lessonId: string): any[] => {
+  getConversation: (lessonId: string): { role: string; content: string }[] => {
     if (typeof window === 'undefined') return [];
     const conversations = storageService.getAllConversations();
     return conversations[lessonId] || [];
   },
 
-  getAllConversations: (): Record<string, any[]> => {
+  getAllConversations: (): Record<string, { role: string; content: string }[]> => {
     if (typeof window === 'undefined') return {};
     const data = localStorage.getItem(STORAGE_KEYS.CONVERSATION_HISTORY);
     return data ? JSON.parse(data) : {};
